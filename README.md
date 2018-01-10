@@ -1,5 +1,9 @@
 #TimerOne Library#
 
+Forked from Paul Stoffregen's modified TimerOne Library
+Added functions to output the timer configuration for debugging purposes
+=======================================================
+
 Paul Stoffregen's modified TimerOne.  This version provides 2 main benefits:
 
 1: Optimized inline functions - much faster for the most common usage  
