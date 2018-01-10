@@ -20,6 +20,8 @@
 TimerOne Timer1;              // preinstatiate
 
 unsigned short TimerOne::pwmPeriod = 0;
+unsigned short TimerOne::prescaleValue = 0;
+unsigned long TimerOne::dutyCycle = 0;
 unsigned char TimerOne::clockSelectBits = 0;
 void (*TimerOne::isrCallback)() = TimerOne::isrDefaultUnused;
 

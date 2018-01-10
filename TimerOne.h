@@ -121,6 +121,10 @@ class TimerOne
 	OCR1C = pwmPeriod;
 	TCCR1 = _BV(CTC1) | clockSelectBits;
     }
+
+	void getInputCaptureRegister() __attribute__((always_inline)) {
+		return pwmPeriod;
+	}
 	
     //****************************
     //  Run Control
@@ -165,7 +169,9 @@ class TimerOne
     static void isrDefaultUnused();
 
   private:
+  	static unsigned short prescaleValue;
     static unsigned short pwmPeriod;
+	static unsigned long dutyCycle;
     static unsigned char clockSelectBits;
     static const byte ratio = (F_CPU)/ ( 1000000 );
 	
@@ -183,30 +189,48 @@ class TimerOne
 	const unsigned long cycles = (F_CPU / 2000000) * microseconds;
 	if (cycles < TIMER1_RESOLUTION) {
 		clockSelectBits = _BV(CS10);
+		prescaleValue = 1;
 		pwmPeriod = cycles;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 8) {
 		clockSelectBits = _BV(CS11);
+		prescaleValue = 8;
 		pwmPeriod = cycles / 8;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 64) {
 		clockSelectBits = _BV(CS11) | _BV(CS10);
+		prescaleValue = 64;
 		pwmPeriod = cycles / 64;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 256) {
 		clockSelectBits = _BV(CS12);
+		prescaleValue = 256;
 		pwmPeriod = cycles / 256;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 1024) {
 		clockSelectBits = _BV(CS12) | _BV(CS10);
+		prescaleValue = 1024;
 		pwmPeriod = cycles / 1024;
 	} else {
 		clockSelectBits = _BV(CS12) | _BV(CS10);
+		prescaleValue = 1024;
 		pwmPeriod = TIMER1_RESOLUTION - 1;
 	}
 	ICR1 = pwmPeriod;
 	TCCR1B = _BV(WGM13) | clockSelectBits;
     }
+
+	unsigned short getPrescaleValue() __attribute__((always_inline)) {
+		return prescaleValue;
+	}
+
+	unsigned short getInputCaptureRegister() __attribute__((always_inline)) {
+		return ICR1;
+	}
+
+	unsigned long getOutputCompareRegister() __attribute__((always_inline)) {
+		return dutyCycle;
+	}
 
     //****************************
     //  Run Control
@@ -230,7 +254,7 @@ class TimerOne
     //  PWM outputs
     //****************************
     void setPwmDuty(char pin, unsigned int duty) __attribute__((always_inline)) {
-	unsigned long dutyCycle = pwmPeriod;
+	dutyCycle = pwmPeriod;
 	dutyCycle *= duty;
 	dutyCycle >>= 10;
 	if (pin == TIMER1_A_PIN) OCR1A = dutyCycle;
@@ -285,7 +309,9 @@ class TimerOne
 
   private:
     // properties
+	static unsigned short prescaleValue;
     static unsigned short pwmPeriod;
+	static unsigned long dutyCycle;
     static unsigned char clockSelectBits;
 
 
@@ -359,37 +385,46 @@ class TimerOne
   */
 	if (cycles < TIMER1_RESOLUTION) {
 		clockSelectBits = 0;
+		prescaleValue = 1;
 		pwmPeriod = cycles;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 2) {
 		clockSelectBits = 1;
+		prescaleValue = 2;
 		pwmPeriod = cycles >> 1;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 4) {
 		clockSelectBits = 2;
+		prescaleValue = 4;
 		pwmPeriod = cycles >> 2;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 8) {
 		clockSelectBits = 3;
+		prescaleValue = 8;
 		pwmPeriod = cycles >> 3;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 16) {
 		clockSelectBits = 4;
+		prescaleValue = 16;
 		pwmPeriod = cycles >> 4;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 32) {
 		clockSelectBits = 5;
+		prescaleValue = 32;
 		pwmPeriod = cycles >> 5;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 64) {
 		clockSelectBits = 6;
+		prescaleValue = 64;
 		pwmPeriod = cycles >> 6;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 128) {
 		clockSelectBits = 7;
+		prescaleValue = 128;
 		pwmPeriod = cycles >> 7;
 	} else {
 		clockSelectBits = 7;
+		prescaleValue = 128;
 		pwmPeriod = TIMER1_RESOLUTION - 1;
 	}
 
@@ -398,6 +433,18 @@ class TimerOne
 	FTM1_MOD = pwmPeriod;
 	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_CPWMS | clockSelectBits | (sc & FTM_SC_TOIE);
     }
+
+	unsigned short getPrescaleValue() __attribute__((always_inline)) {
+		return prescaleValue;
+	}
+
+	unsigned short getInputCaptureRegister() __attribute__((always_inline)) {
+		return ICR1;
+	}
+
+	unsigned long getOutputCompareRegister() __attribute__((always_inline)) {
+		return dutyCycle;
+	}
 
     //****************************
     //  Run Control
@@ -421,7 +468,7 @@ class TimerOne
     //  PWM outputs
     //****************************
     void setPwmDuty(char pin, unsigned int duty) __attribute__((always_inline)) {
-	unsigned long dutyCycle = pwmPeriod;
+	dutyCycle = pwmPeriod;
 	dutyCycle *= duty;
 	dutyCycle >>= 10;
 	if (pin == TIMER1_A_PIN) {
@@ -471,6 +518,8 @@ class TimerOne
 
   private:
     // properties
+	static unsigned short prescaleValue;
+	static unsigned long dutyCycle;
     static unsigned short pwmPeriod;
     static unsigned char clockSelectBits;
 
